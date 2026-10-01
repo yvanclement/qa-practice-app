@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QA Practice App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #4CAF50;
+      --green-dark: #388E3C;
+      --black: #1a1a1a;
+      --white: #ffffff;
+      --gray: #f5f5f5;
+      --gray-border: #ddd;
+      --red: #e53935;
+      --blue: #1976D2;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--gray);
+      color: var(--black);
+      min-height: 100vh;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 56px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { color: var(--green); font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 0.5rem; }
+    .nav-links button {
+      background: transparent; border: none; color: #aaa;
+      padding: 6px 16px; border-radius: 4px; cursor: pointer;
+      font-size: 0.9rem; transition: all 0.2s;
+    }
+    .nav-links button:hover, .nav-links button.active {
+      background: var(--green); color: var(--white);
+    }
+    #btn-logout {
+      background: transparent; border: 1px solid #555;
+      color: #aaa; padding: 5px 14px; border-radius: 4px;
+      cursor: pointer; font-size: 0.85rem; display: none;
+    }
+    #btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+    /* ===== PAGES ===== */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .container {
+      max-width: 480px; margin: 3rem auto; padding: 0 1rem;
+    }
+    .container-wide {
+      max-width: 720px; margin: 2rem auto; padding: 0 1rem;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--white); border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+    }
+
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--green-dark); }
+    .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+    /* ===== FORM ===== */
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #444; }
+    input, textarea, select {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--gray-border);
+      border-radius: 6px; font-size: 0.95rem; font-family: inherit;
+      transition: border-color 0.2s; background: #fafafa;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: var(--green); background: var(--white);
+    }
+    input.error { border-color: var(--red); }
+    .error-msg { color: var(--red); font-size: 0.8rem; margin-top: 4px; display: none; }
+    .error-msg.show { display: block; }
+    textarea { resize: vertical; min-height: 100px; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      width: 100%; padding: 11px; border: none; border-radius: 6px;
+      font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--green); color: var(--white); }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-danger { background: var(--red); color: var(--white); width: auto; padding: 6px 14px; font-size: 0.85rem; }
+    .btn-danger:hover { background: #c62828; }
+    .btn-sm {
+      width: auto; padding: 5px 12px; font-size: 0.82rem;
+      background: var(--green); color: var(--white); border: none;
+      border-radius: 4px; cursor: pointer;
+    }
+    .btn-sm:hover { background: var(--green-dark); }
+
+    /* ===== ALERT ===== */
+    .alert {
+      padding: 10px 14px; border-radius: 6px; font-size: 0.88rem;
+      margin-bottom: 1rem; display: none;
+    }
+    .alert.show { display: block; }
+    .alert-success { background: #e8f5e9; border-left: 4px solid var(--green); color: #2e7d32; }
+    .alert-error { background: #ffebee; border-left: 4px solid var(--red); color: #c62828; }
+    .alert-info { background: #e3f2fd; border-left: 4px solid var(--blue); color: #1565c0; }
+
+    /* ===== LOGIN ===== */
+    #login-hint {
+      background: #f1f8e9; border: 1px dashed var(--green);
+      border-radius: 6px; padding: 10px 14px; margin-bottom: 1.2rem;
+      font-size: 0.83rem; color: #558b2f;
+    }
+    #login-hint code { font-weight: 700; color: var(--green-dark); }
+
+    /* ===== TODO ===== */
+    .todo-header { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .todo-header input { flex: 1; }
+    #todo-list { list-style: none; }
+    #todo-list li {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 10px 12px; background: var(--gray);
+      border-radius: 6px; margin-bottom: 8px;
+      border: 1px solid var(--gray-border);
+    }
+    #todo-list li.done span { text-decoration: line-through; color: #aaa; }
+    #todo-list li input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+    #todo-list li span { flex: 1; font-size: 0.95rem; }
+    #todo-count { font-size: 0.82rem; color: #888; margin-top: 0.5rem; }
+    .empty-state { text-align: center; color: #bbb; padding: 2rem; font-size: 0.9rem; }
+
+    /* ===== CONTACT ===== */
+    #contact-list { margin-top: 1.5rem; }
+    .contact-item {
+      background: #f1f8e9; border-left: 3px solid var(--green);
+      border-radius: 4px; padding: 10px 14px; margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+    .contact-item strong { color: var(--green-dark); }
+
+    /* ===== DASHBOARD ===== */
+    .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card {
+      background: var(--white); border-radius: 8px; padding: 1.2rem;
+      text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border-top: 3px solid var(--green);
+    }
+    .stat-card .stat-num { font-size: 2rem; font-weight: 700; color: var(--green-dark); }
+    .stat-card .stat-label { font-size: 0.8rem; color: #888; margin-top: 4px; }
+    .welcome-bar {
+      background: var(--black); color: var(--white);
+      border-radius: 8px; padding: 1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .welcome-bar span { font-size: 0.95rem; }
+    .welcome-bar strong { color: var(--green); }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--black); color: var(--white);
+      padding: 10px 20px; border-radius: 6px; font-size: 0.9rem;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
+      border-left: 4px solid var(--green);
+    }
+    #toast.show { opacity: 1; }
+
+    @media (max-width: 500px) {
+      .stats { grid-template-columns: 1fr; }
+      nav { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">⚡ QA Practice App</span>
+  <div class="nav-links" id="nav-links" style="display:none">
+    <button onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</button>
+    <button onclick="showPage('todo')" id="nav-todo">Todo</button>
+    <button onclick="showPage('contact')" id="nav-contact">Contact</button>
+  </div>
+  <button id="btn-logout" onclick="logout()">Déconnexion</button>
+</nav>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ===== PAGE LOGIN ===== -->
+<div class="page active" id="page-login">
+  <div class="container">
+    <div class="card" style="margin-top:4rem">
+      <h1>Connexion</h1>
+      <p class="subtitle">Accédez à l'application de tests QA</p>
+
+      <div id="login-hint">
+        Identifiant : <code>admin</code> &nbsp;|&nbsp; Mot de passe : <code>password123</code>
+      </div>
+
+      <div class="alert alert-error" id="login-error">Identifiant ou mot de passe incorrect.</div>
+
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur</label>
+        <input type="text" id="username" placeholder="Entrez votre identifiant" autocomplete="off" />
+        <div class="error-msg" id="err-username">Ce champ est obligatoire.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" placeholder="Entrez votre mot de passe" />
+        <div class="error-msg" id="err-password">Ce champ est obligatoire.</div>
+      </div>
+
+      <button class="btn btn-primary" id="btn-login" onclick="doLogin()">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE DASHBOARD ===== -->
+<div class="page" id="page-dashboard">
+  <div class="container-wide">
+    <div class="welcome-bar">
+      <span>Bienvenue, <strong id="welcome-name">admin</strong> 👋</span>
+      <span style="font-size:0.8rem;color:#888">QA Practice App v1.0</span>
+    </div>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-todo">0</div>
+        <div class="stat-label">Tâches restantes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-done">0</div>
+        <div class="stat-label">Tâches terminées</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-messages">0</div>
+        <div class="stat-label">Messages reçus</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>À propos de cette application</h2>
+      <p style="font-size:0.9rem;line-height:1.7;color:#555">
+        Cette application a été créée pour pratiquer les tests automatisés avec <strong>Playwright</strong>.
+        Elle contient un formulaire de <strong>login</strong>, une <strong>Todo List</strong> et un
+        <strong>formulaire de contact</strong> — idéal pour apprendre les sélecteurs, les assertions et les interactions.
+      </p>
+      <ul style="margin-top:1rem;padding-left:1.2rem;font-size:0.88rem;color:#666;line-height:2">
+        <li>✅ Tester la connexion (champs valides / invalides)</li>
+        <li>✅ Ajouter, cocher et supprimer des tâches</li>
+        <li>✅ Soumettre et valider le formulaire de contact</li>
+        <li>✅ Vérifier les messages d'erreur</li>
+        <li>✅ Tester la déconnexion</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE TODO ===== -->
+<div class="page" id="page-todo">
+  <div class="container-wide">
+    <div class="card">
+      <h2>Liste de tâches</h2>
+      <div class="todo-header">
+        <input type="text" id="todo-input" placeholder="Ajouter une nouvelle tâche..." maxlength="100"
+          onkeydown="if(event.key==='Enter') addTodo()" />
+        <button class="btn-sm" onclick="addTodo()" id="btn-add-todo">Ajouter</button>
+      </div>
+      <div class="alert alert-error" id="todo-error">Veuillez saisir une tâche.</div>
+      <ul id="todo-list">
+        <li class="empty-state" id="todo-empty">Aucune tâche pour le moment. Ajoutez-en une !</li>
+      </ul>
+      <div id="todo-count"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE CONTACT ===== -->
+<div class="page" id="page-contact">
+  <div class="container-wide">
+    <div class="card">
+      <h2>Formulaire de contact</h2>
+      <div class="alert alert-success" id="contact-success">Message envoyé avec succès !</div>
+      <div class="alert alert-error" id="contact-error">Veuillez corriger les erreurs.</div>
+
+      <div class="form-group">
+        <label for="contact-name">Nom complet *</label>
+        <input type="text" id="contact-name" placeholder="Votre nom complet" />
+        <div class="error-msg" id="err-contact-name">Ce champ est obligatoire.</div>
+      </div>
+      <div class="form-group">
+        <label for="contact-email">Email *</label>
+        <input type="email" id="contact-email" placeholder="votre@email.com" />
+        <div class="error-msg" id="err-contact-email">Adresse email invalide.</div>
+      </div>
+      <div class="form-group">
+        <label for="contact-subject">Sujet *</label>
+        <select id="contact-subject">
+          <option value="">-- Choisissez un sujet --</option>
+          <option value="bug">Signaler un bug</option>
+          <option value="feature">Demande de fonctionnalité</option>
+          <option value="question">Question générale</option>
+          <option value="other">Autre</option>
+        </select>
+        <div class="error-msg" id="err-contact-subject">Veuillez choisir un sujet.</div>
+      </div>
+      <div class="form-group">
+        <label for="contact-message">Message *</label>
+        <textarea id="contact-message" placeholder="Votre message ici..."></textarea>
+        <div class="error-msg" id="err-contact-message">Le message doit contenir au moins 10 caractères.</div>
+      </div>
+      <button class="btn btn-primary" id="btn-send" onclick="sendContact()">Envoyer le message</button>
+    </div>
+
+    <div id="contact-list"></div>
+  </div>
+</div>
+
+<script>
+  // ===== STATE =====
+  let isLoggedIn = false;
+  let todos = [];
+  let messages = [];
+  let todoIdCounter = 1;
+
+  // ===== UTILS =====
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('nav-' + name);
+    if (btn) btn.classList.add('active');
+    if (name === 'dashboard') updateStats();
+  }
+
+  function updateStats() {
+    const remaining = todos.filter(t => !t.done).length;
+    const done = todos.filter(t => t.done).length;
+    document.getElementById('stat-todo').textContent = remaining;
+    document.getElementById('stat-done').textContent = done;
+    document.getElementById('stat-messages').textContent = messages.length;
+  }
+
+  // ===== LOGIN =====
+  function doLogin() {
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value.trim();
+    let valid = true;
+
+    document.getElementById('err-username').classList.remove('show');
+    document.getElementById('err-password').classList.remove('show');
+    document.getElementById('login-error').classList.remove('show');
+    document.getElementById('username').classList.remove('error');
+    document.getElementById('password').classList.remove('error');
+
+    if (!u) {
+      document.getElementById('err-username').classList.add('show');
+      document.getElementById('username').classList.add('error');
+      valid = false;
+    }
+    if (!p) {
+      document.getElementById('err-password').classList.add('show');
+      document.getElementById('password').classList.add('error');
+      valid = false;
+    }
+    if (!valid) return;
+
+    if (u === 'admin' && p === 'password123') {
+      isLoggedIn = true;
+      document.getElementById('welcome-name').textContent = u;
+      document.getElementById('nav-links').style.display = 'flex';
+      document.getElementById('btn-logout').style.display = 'block';
+      showPage('dashboard');
+      showToast('Connexion réussie !');
+    } else {
+      document.getElementById('login-error').classList.add('show');
+    }
+  }
+
+  function logout() {
+    isLoggedIn = false;
+    document.getElementById('nav-links').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('login-error').classList.remove('show');
+    showPage('login');
+    showToast('Déconnexion réussie.');
+  }
+
+  // ===== TODO =====
+  function addTodo() {
+    const input = document.getElementById('todo-input');
+    const val = input.value.trim();
+    document.getElementById('todo-error').classList.remove('show');
+
+    if (!val) {
+      document.getElementById('todo-error').classList.add('show');
+      return;
+    }
+
+    todos.push({ id: todoIdCounter++, text: val, done: false });
+    input.value = '';
+    renderTodos();
+    showToast('Tâche ajoutée !');
+  }
+
+  function toggleTodo(id) {
+    const t = todos.find(t => t.id === id);
+    if (t) { t.done = !t.done; renderTodos(); }
+  }
+
+  function deleteTodo(id) {
+    todos = todos.filter(t => t.id !== id);
+    renderTodos();
+    showToast('Tâche supprimée.');
+  }
+
+  function renderTodos() {
+    const list = document.getElementById('todo-list');
+    const empty = document.getElementById('todo-empty');
+
+    if (todos.length === 0) {
+      list.innerHTML = '';
+      list.appendChild(empty);
+      empty.style.display = 'block';
+      document.getElementById('todo-count').textContent = '';
+      return;
+    }
+
+    empty.style.display = 'none';
+    list.innerHTML = '';
+    todos.forEach(t => {
+      const li = document.createElement('li');
+      li.setAttribute('data-id', t.id);
+      if (t.done) li.classList.add('done');
+      li.innerHTML = `
+        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${t.id})" />
+        <span>${t.text}</span>
+        <button class="btn-danger" onclick="deleteTodo(${t.id})">Supprimer</button>
+      `;
+      list.appendChild(li);
+    });
+
+    const remaining = todos.filter(t => !t.done).length;
+    document.getElementById('todo-count').textContent =
+      `${remaining} tâche(s) restante(s) sur ${todos.length}`;
+  }
+
+  // ===== CONTACT =====
+  function sendContact() {
+    const name = document.getElementById('contact-name').value.trim();
+    const email = document.getElementById('contact-email').value.trim();
+    const subject = document.getElementById('contact-subject').value;
+    const msg = document.getElementById('contact-message').value.trim();
+    let valid = true;
+
+    ['contact-name','contact-email','contact-subject','contact-message'].forEach(id => {
+      document.getElementById('err-' + id).classList.remove('show');
+      document.getElementById(id).classList.remove('error');
+    });
+    document.getElementById('contact-success').classList.remove('show');
+    document.getElementById('contact-error').classList.remove('show');
+
+    if (!name) {
+      document.getElementById('err-contact-name').classList.add('show');
+      document.getElementById('contact-name').classList.add('error');
+      valid = false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      document.getElementById('err-contact-email').classList.add('show');
+      document.getElementById('contact-email').classList.add('error');
+      valid = false;
+    }
+    if (!subject) {
+      document.getElementById('err-contact-subject').classList.add('show');
+      document.getElementById('contact-subject').classList.add('error');
+      valid = false;
+    }
+    if (msg.length < 10) {
+      document.getElementById('err-contact-message').classList.add('show');
+      document.getElementById('contact-message').classList.add('error');
+      valid = false;
+    }
+
+    if (!valid) {
+      document.getElementById('contact-error').classList.add('show');
+      return;
+    }
+
+    messages.push({ name, email, subject, msg, date: new Date().toLocaleString() });
+
+    // Reset form
+    document.getElementById('contact-name').value = '';
+    document.getElementById('contact-email').value = '';
+    document.getElementById('contact-subject').value = '';
+    document.getElementById('contact-message').value = '';
+
+    document.getElementById('contact-success').classList.add('show');
+    renderMessages();
+    showToast('Message envoyé !');
+  }
+
+  function renderMessages() {
+    const list = document.getElementById('contact-list');
+    if (messages.length === 0) { list.innerHTML = ''; return; }
+    list.innerHTML = '<h2 style="margin-bottom:0.8rem;color:#388E3C">Messages reçus</h2>' +
+      messages.map(m => `
+        <div class="contact-item">
+          <strong>${m.name}</strong> (${m.email}) — <em>${m.subject}</em><br/>
+          <span style="color:#555">${m.msg}</span>
+          <div style="color:#aaa;font-size:0.75rem;margin-top:4px">${m.date}</div>
+        </div>
+      `).join('');
+  }
+
+  // Enter on login
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !isLoggedIn) doLogin();
+  });
+</script>
+</body>
+</html>
